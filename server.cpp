@@ -34,34 +34,38 @@ int main(int argc, char const *argv[])
     }
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons( PORT );
+    address.sin_port = htons(PORT);
 
     //Forcefully attaching socket to the port 8080
-    if( bind(serverFd, (struct sockaddr *)&address, sizeof(address)) < 0)
+    if (bind(serverFd, (struct sockaddr *)&address, sizeof(address)) < 0)
     {
         perror("Bind Failed!");
         exit(EXIT_FAILURE);
     }
 
-    int listening = listen(serverFd,3);
-    if(listen < 0)
+    int listening = listen(serverFd, 3);
+    if (listen < 0)
     {
         perror("Listening Error");
         exit(EXIT_FAILURE);
     }
 
-    newSocket = accept(serverFd, (struct sockaddr *)&address, (socklen_t*)&addressLength);
-    if (newSocket < 0)
+    while (1)
     {
-        perror("Accept Failure");
-        exit(EXIT_FAILURE);
+        std::cout << "Server is running!\n";
+        
+        newSocket = accept(serverFd, (struct sockaddr *)&address, (socklen_t *)&addressLength);
+        if (newSocket < 0)
+        {
+            perror("Accept Failure");
+            exit(EXIT_FAILURE);
+        }
+
+        valRead = read(newSocket, buffer, 1024);
+        std::cout << buffer << std::endl;
+        send(newSocket, greetMessage, strlen(greetMessage), 0);
+        std::cout << "Message Sent\n";
     }
 
-    valRead = read(newSocket, buffer, 1024);
-    std::cout << buffer << std::endl;
-    send(newSocket, greetMessage, strlen(greetMessage), 0);
-    std::cout << "Message Send\n";
     return 0;
-
-
 }
